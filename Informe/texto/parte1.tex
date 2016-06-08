@@ -1,0 +1,119 @@
+\section{Implementacion Map-Reduce}
+
+\subsection{Encontrar el subreddit con mayor score promedio}
+
+Para realizar este análisis se implemento una función \textbf{Map}, la cual utiliza como clave el campo \textit{subreddit} del post y a dicha clave asocia la tupla formada por el campo \textit{score} del post y un uno para contabilizar el post.
+Luego, la función \textbf{Reduce} contabiliza la cantidad de post de un mismo subreddit y calcula la sumatoria de los scores de estos, retornando ambos en una tupla.
+Finalmente, la función \textbf{Finalize} se encarga de calcular el promedio con los dos valores anteriores.
+
+Luego, ejecutamos en Mongo los siguientes comandos para obtener el resultado buscado:
+\begin{lstlisting}
+use reddit
+db.default.find().sort({"value":-1).limit(1)
+\end{lstlisting}
+
+Simplemente ordenamos los resultados en orden descendente en función del campo \textit{value}, el cual contiene el score promedio de cada subreddit, y nos quedamos con el primero, es decir, el máximo.
+
+El resultado obtenido es que el subreddit \textit{GirlGamers} es el que tiene mayor score promedio, con un valor de 2483.
+
+
+\subsection{Encontrar los doce títulos con mayor score de la colección de posts con al menos 2000 votos}
+
+La función \textbf{Map} implementada utiliza como clave el campo title del post y como valor asociado utiliza una tupla formada por los campos total\_votes y score de dicho post.
+Luego, la función \textbf{Reduce} calcula la sumatoria de los votos totales y la sumatoria de los scores y retorna ambos resultados en una tupla.
+Finalmente, la función \textbf{Finalize} verifica si titulo tiene mas de 2000 votos y, en caso afirmativo, retorna la sumatoria de los scores. En caso contrario retorna cero.
+
+Luego, utilizamos los siguientes comandos de Mongo:
+\begin{lstlisting}
+use reddit
+db.default.find().sort({"value":-1).limit(12)
+\end{lstlisting}
+
+Utilizamos casi los mismos comandos que en el punto anterior, solo que aqui ordenamos de forma descendente el campo \textit{value}, el cual contiene el score de cada titulo, y nos quedamos con los primeros doce.
+
+Los doce títulos con mayor score y, al menos, 2000 votos son:
+\begin{lstlisting}
+The Bus Knight
+Haters gonna hate
+So my little cousin posted on FB that he was bored and gave everyone his new phone number... (pic)
+My friend calls him &quot;Mr Ridiculously Photogenic Guy&quot;
+This is called humanity.
+Genius
+Seems legit.
+President Obama's new campaign poster
+Poster ad for the Canadian Paralympics
+Fuck the police
+Soon...
+I'm sorry pinata bro
+\end{lstlisting}
+
+
+\subsection{Para los diez mejores scores, calcular la cantidad de comentarios en promedio por sumisión}
+
+La función \textbf{Map} implementada para este ejercicio utiliza como clave el campo \textit{score} del post y le asocia la tupla formada por un uno (para contabilizar la sumisión) y el campo \textit{number\_of\_comments} de dicho post.
+Luego, la función \textbf{Reduce} retorna una tupla formada por la sumatoria de unos (cantidad de sumisiones) y la sumatoria del numero de comentarios para cada score (cantidad de comentarios).
+Finalmente, la función \textbf{Finalize} se encarga de calcular la cantidad de comentarios en promedio realizando la división de los dos valores retornados por Reduce.
+
+Luego, utilizamos en Mongo los siguientes comandos:
+\begin{lstlisting}
+use reddit
+db.default.find().sort({"_id": -1).limit(10)
+\end{lstlisting}
+
+Lo que hacemos es ordenar los resultados en forma descendente por su score (el cual recordemos que utilizamos como clave) y luego no quedamos con los 10 mejores.
+
+El resultado obtenido es:
+\begin{lstlisting}
+Score   Cantidad de comentarios en promedio por sumision
+20570                      1463 
+12333                      1612
+11908                      2681
+10262                      1514
+ 8935                       480
+ 8835                      1716
+ 8699                       934
+ 8241                       571
+ 7297                      1110
+ 6741                      2204
+\end{lstlisting}
+
+
+\subsection{Entre los usuarios con a lo sumo 5 sumisiones, encontrar el que posee mayor cantidad de upvotes}
+
+La función \textbf{Map} utiliza el campo \textit{username} como clave y le asocia la tupla formada por un uno (para contabilizar la sumisión) y el campo \textit{upvotes} del post.
+Luego, la función Reduce se encarga de realizar la sumatoria de sumisiones y upvotes para cada usuario y, finalmente, la función Finalize se encarga de retornar el numero de upvotes para aquellos usuarios que tengan a lo sumo 5 sumisiones. Para aquellos usuarios que tienen mas de 5 sumisiones retorna cero.
+
+En Mongo utilizamos los comandos:
+\begin{lstlisting}
+use reddit
+db.default.find().sort({"value":-1).limit(1)
+\end{lstlisting}
+
+De la misma forma que en el primer ejercicio, obtenemos al usuario con mayor cantidad de upvotes y a lo sumo 5 sumisiones. El usuario encontrado es \textit{lepry} con 90396 upvotes.
+
+
+\subsection{Para todos los subreddit que poseen un score entre 280 y 300, indicar la cantidad de palabras presentes en sus títulos}
+
+La función \textbf{Map} utiliza como clave el campo \textit{subreddit} del post y le asocia la tupla formada por el campo \textit{score} del post y un entero indicando la cantidad de palabras en el titulo del post \textit{(calculado como this.title.split(" ").length)}.
+Luego, la función \textbf{Reduce} lleva a cabo la sumatoria de la cantidad de palabras en el titulo y la sumatoria de los score para cada subreddit.
+Finalmente, la función \textbf{Finalize} determina si el subreddit tiene un score entre 280 y 300. En caso afirmativo retorna la sumatoria de la cantidad de palabras en sus títulos. En caso contrario retorna -1.
+
+Luego, utilizamos los siguientes comandos en Mongo:
+\begin{lstlisting}
+use reddit
+db.default.find({"value": {$ne: -1}})
+\end{lstlisting}
+
+Con este comando filtramos los resultados para solo quedarnos con aquellos que nos interesan, es decir, para los cuales \textbf{Finalize} no retorno -1 y que, por lo tanto, tienen un score entre 280 y 300.
+
+El resultado obtenido es que los siguiente subreddit son los que tienen un score entre 280 y 300 (entre paréntesis colocamos la cantidad de palabras presentes en sus títulos):
+\begin{lstlisting}
+Subreddit             Cantidad de palabras presentes en sus titulos
+Feminism                                       6
+Firearms                                      24
+HeroesofNewerth                                6
+Sexy                                          13
+TheRealZachAnner                               4
+ragecomics                                     4
+xkcd                                           4
+\end{lstlisting}

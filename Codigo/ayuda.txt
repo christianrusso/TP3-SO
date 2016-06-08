@@ -1,0 +1,7 @@
+Para cargar los posts:		./csv_loader.py
+Para correr el runner:		python runner.py ejx
+Para ver el resultado:
+							mongo
+							use reddit
+							db.default.find()
+

@@ -1,0 +1,18 @@
+/**
+ * Ejercicio 3: Para los diez mejores scores,
+ * calcular la cantidad de comentarios en promedio por sumisión.
+ */
+use reddit;
+db.ej3.remove({});
+var ej3_cursor = db.posts.find().sort({
+    "score":-1
+}).limit(10);
+var total = 0;
+while(ej3_cursor.hasNext()) {
+    var one_post = ej3_cursor.next();
+    total += one_post.number_of_comments;
+}
+var promedio = total/10;
+print(promedio);
+ 
+// Resultado: 1428.5
